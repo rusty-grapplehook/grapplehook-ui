@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { CancelledError, checkTools, download, getVideoInfo, type DownloadOptions, type DownloadTask, type ProgressEvent } from 'grapplehook-core';
+import fs from 'node:fs';
 import path from 'node:path';
 
 // ---------------------------------------------------------------------------
@@ -54,6 +55,26 @@ function createWindow(): BrowserWindow {
 
   return win;
 }
+
+function fixPath(): void {
+  if (process.platform === 'win32') {
+    return;
+  }
+
+  // GUI apps on macOS (and some Linux launchers) get launchd's minimal PATH,
+  // not the user's shell PATH — so Homebrew/pipx installs aren't found.
+  const extra = [
+    '/opt/homebrew/bin', // Homebrew (Apple Silicon)
+    '/usr/local/bin', // Homebrew (Intel), many installers
+    '/opt/local/bin', // MacPorts
+    `${process.env.HOME}/.local/bin`, // pipx
+  ].filter((p) => fs.existsSync(p));
+
+  const current = (process.env.PATH ?? '').split(':');
+  process.env.PATH = [...new Set([...current, ...extra])].join(':');
+}
+
+fixPath();
 
 // ---------------------------------------------------------------------------
 // IPC handlers - thin wrappers around grapplehook-core.
