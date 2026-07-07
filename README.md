@@ -9,6 +9,77 @@ transcode stages), cancellation, and a tool-availability readout for
 > Downloading YouTube content is governed by YouTube's Terms of Service and by
 > copyright law. Use this only for videos you have the right to download.
 
+## Install
+
+Grab the installer for your platform from the
+[latest release](https://github.com/rusty-grapplehook/grapplehook-ui/releases/latest):
+`.dmg` (macOS, Apple Silicon), `.exe` (Windows), or `.AppImage` (Linux).
+
+The builds are **not code-signed** (i aint paying 200$/yr for this shi lol), so each
+OS shows a one-time warning the first time you run the app. That's expected -
+here's how to get past it. If you'd rather not trust an unsigned binary, you
+can always [build from source](#develop) instead.
+
+### macOS
+
+Gatekeeper will refuse to open the app with _"Grapplehook" cannot be opened
+because Apple cannot check it for malicious software_ (or _"the developer
+cannot be verified"_).
+
+1. Open the `.dmg` and drag **Grapplehook** into **Applications** as usual.
+2. Try to open it once (it will be blocked - that's fine).
+3. Go to **System Settings → Privacy & Security**, scroll down, and click
+   **Open Anyway** next to the Grapplehook message, then confirm.
+
+On older macOS versions, right-clicking the app in Applications and choosing
+**Open** (twice, if needed) works too. Either way it's a one-time step; after
+that it opens normally.
+
+If macOS instead says the app _"is damaged and can't be opened"_, that's
+Gatekeeper's quarantine flag on an unsigned download - clear it with:
+
+```bash
+xattr -cr /Applications/Grapplehook.app
+```
+
+### Windows
+
+SmartScreen shows a blue **"Windows protected your PC"** dialog when you run
+the installer.
+
+1. Click **More info**.
+2. Click **Run anyway**.
+
+The installer then runs normally. Your browser may also flag the download
+itself - choose **Keep** / **Keep anyway** in the download bar.
+
+### Linux
+
+No signing involved - AppImages just need to be executable:
+
+```bash
+chmod +x grapplehook-ui-*.AppImage
+./grapplehook-ui-*.AppImage
+```
+
+If it fails with a FUSE error on newer distros (Ubuntu 24.04+), install
+`libfuse2` (e.g. `sudo apt install libfuse2t64`) or run it with
+`--appimage-extract-and-run`.
+
+### Verify your download (optional)
+
+Every release asset has its SHA-256 digest listed on the release page. To
+check that your download matches:
+
+```bash
+shasum -a 256 <file>        # macOS
+sha256sum <file>            # Linux
+certutil -hashfile <file> SHA256   # Windows
+```
+
+Remember the app still needs `yt-dlp` and `ffmpeg` installed - see
+[Requirements](#requirements).
+
 ## Layout
 
 ```text
@@ -44,15 +115,64 @@ any running tasks so no orphaned yt-dlp/ffmpeg processes are left behind.
 
 ## Requirements
 
-Same external tools as the CLI - they are **not** bundled by default:
+Same external tools as the CLI - they are **not** bundled with the app:
 
-- Node.js 24+
-- [pnpm](https://pnpm.io)
 - `yt-dlp` on `PATH` (or `YTDLP_PATH`)
 - `ffmpeg` / `ffprobe` on `PATH` (or `FFMPEG_PATH` / `FFPROBE_PATH`)
-- `aria2c` recommended (or `ARIA2C_PATH`) - auto-used when present
+- `aria2c` recommended (or `ARIA2C_PATH`) - auto-used when present for much
+  faster downloads
 
-The header pills show live availability at launch.
+The header pills show live availability at launch. Node.js 24+ and
+[pnpm](https://pnpm.io) are only needed if you're [building from
+source](#develop).
+
+### Installing the tools
+
+**macOS** ([Homebrew](https://brew.sh)):
+
+```bash
+brew install yt-dlp ffmpeg aria2
+```
+
+**Windows** (winget, built into Windows 10/11 - or use `choco` / `scoop`
+equivalents):
+
+```powershell
+winget install yt-dlp.yt-dlp
+winget install Gyan.FFmpeg
+winget install aria2.aria2
+```
+
+Restart the app (or your terminal) afterwards so the updated `PATH` is picked
+up.
+
+**Linux:**
+
+```bash
+# Debian / Ubuntu
+sudo apt install ffmpeg aria2
+# Fedora            sudo dnf install ffmpeg aria2
+# Arch              sudo pacman -S ffmpeg aria2
+```
+
+Distro repos often ship an outdated `yt-dlp`, which is the #1 source of
+breakage - install it via pipx (or download the [official
+binary](https://github.com/yt-dlp/yt-dlp#installation)) instead:
+
+```bash
+pipx install yt-dlp
+```
+
+**Keep yt-dlp updated** - YouTube changes frequently and most download
+failures are fixed by:
+
+```bash
+yt-dlp -U        # or: pipx upgrade yt-dlp / brew upgrade yt-dlp / winget upgrade yt-dlp.yt-dlp
+```
+
+If a tool is installed somewhere unusual, point the app at it with the
+`YTDLP_PATH` / `FFMPEG_PATH` / `FFPROBE_PATH` / `ARIA2C_PATH` environment
+variables.
 
 ## Develop
 
