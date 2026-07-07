@@ -1,9 +1,10 @@
 # grapplehook-ui
 
 Desktop GUI for **grapplehook**, built with Electron on top of
-[`grapplehook-core`](../grapplehook-core). Paste a URL, pick a quality, and
-download - with a live progress bar (download _and_ transcode stages),
-cancellation, and a tool-availability readout for `yt-dlp` / `ffmpeg` / `aria2c`.
+[`grapplehook-core`](https://www.npmjs.com/package/grapplehook-core). Paste a
+URL, pick a quality, and download - with a live progress bar (download _and_
+transcode stages), cancellation, and a tool-availability readout for
+`yt-dlp` / `ffmpeg` / `aria2c`.
 
 > Downloading YouTube content is governed by YouTube's Terms of Service and by
 > copyright law. Use this only for videos you have the right to download.
@@ -27,13 +28,15 @@ Everything that spawns subprocesses runs in the **main process** (that's where
 (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`) and talks
 to main only through the small API the preload exposes:
 
-| Renderer call                             | IPC channel                          | Core function       |
-| ----------------------------------------- | ------------------------------------ | ------------------- |
-| `grapplehook.checkTools()`                | `gh:checkTools`                      | `checkTools()`      |
-| `grapplehook.getInfo(url)`                | `gh:getInfo`                         | `getVideoInfo(url)` |
-| `grapplehook.start(opts)` → `taskId`      | `gh:start`                           | `download(opts)`    |
-| `grapplehook.cancel(taskId)`              | `gh:cancel`                          | `task.cancel()`     |
-| `grapplehook.onProgress/onLog/onDone(cb)` | `gh:progress` / `gh:log` / `gh:done` | task events         |
+| Renderer call                             | IPC channel                          | Backed by                  |
+| ----------------------------------------- | ------------------------------------ | -------------------------- |
+| `grapplehook.checkTools()`                | `gh:checkTools`                      | `checkTools()`             |
+| `grapplehook.getInfo(url)`                | `gh:getInfo`                         | `getVideoInfo(url)`        |
+| `grapplehook.chooseDir()`                 | `gh:chooseDir`                       | `dialog.showOpenDialog()`  |
+| `grapplehook.openPath(path)`              | `gh:openPath`                        | `shell.showItemInFolder()` |
+| `grapplehook.start(opts)` → `taskId`      | `gh:start`                           | `download(opts)`           |
+| `grapplehook.cancel(taskId)`              | `gh:cancel`                          | `task.cancel()`            |
+| `grapplehook.onProgress/onLog/onDone(cb)` | `gh:progress` / `gh:log` / `gh:done` | task events                |
 
 Multiple downloads can run at once; each is identified by a `taskId` so the
 progress stream and cancel button target the right one. `before-quit` cancels
@@ -43,7 +46,8 @@ any running tasks so no orphaned yt-dlp/ffmpeg processes are left behind.
 
 Same external tools as the CLI - they are **not** bundled by default:
 
-- Node.js 18+
+- Node.js 24+
+- [pnpm](https://pnpm.io)
 - `yt-dlp` on `PATH` (or `YTDLP_PATH`)
 - `ffmpeg` / `ffprobe` on `PATH` (or `FFMPEG_PATH` / `FFPROBE_PATH`)
 - `aria2c` recommended (or `ARIA2C_PATH`) - auto-used when present
@@ -52,19 +56,29 @@ The header pills show live availability at launch.
 
 ## Develop
 
-`grapplehook-core` is consumed as a local file dependency, so build it first:
+`grapplehook-core` is a regular npm dependency, so setup is a single install:
 
 ```bash
-cd ../grapplehook-core && npm install && npm run build
-cd ../grapplehook-ui  && npm install
-npm start        # build + launch
-npm run dev      # build + launch with DevTools open
+pnpm install
+pnpm start           # build + launch
+pnpm run dev         # build + launch with DevTools open
 ```
+
+Other scripts:
+
+```bash
+pnpm run typecheck   # tsc --noEmit
+pnpm run bonita      # lint --fix + prettier --write
+```
+
+> Hacking on core at the same time? Link a local checkout with
+> `pnpm link ../grapplehook-core` (and run its `dev`/`build` there), then
+> `pnpm unlink grapplehook-core` to go back to the published package.
 
 ## Package
 
 ```bash
-npm run dist     # electron-builder → ./release (dmg / nsis / AppImage)
+pnpm run dist        # electron-builder → ./release (dmg / nsis / AppImage)
 ```
 
 ### Bundling the binaries (optional)
