@@ -1,0 +1,73 @@
+name: Release
+
+# Cutting a release:
+#   pnpm version patch        # bumps package.json + creates the v* tag
+#   git push --follow-tags
+# This builds dmg / nsis / AppImage on the three OSes and attaches them to a
+# draft GitHub Release for the tag. Review the draft, then publish it.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # create the release + upload installer assets
+
+jobs:
+  release:
+    name: Package / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Verify tag matches package.json version
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "Tag v$TAG does not match package.json version $PKG" >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm run typecheck
+
+      # `pnpm run dist` = build + electron-builder. With GH_TOKEN set and
+      # `--publish always`, electron-builder uploads the artifacts to a draft
+      # GitHub Release for this tag (creating it if needed).
+      - name: Build and package
+        run: pnpm run dist -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Unsigned builds for now. To sign, add CSC_LINK / CSC_KEY_PASSWORD
+          # (macOS/Windows certs) as repo secrets and remove this line.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      # Belt-and-braces: also keep the raw artifacts on the workflow run.
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: grapplehook-${{ matrix.os }}
+          path: |
+            release/*.dmg
+            release/*.exe
+            release/*.AppImage
+          if-no-files-found: error

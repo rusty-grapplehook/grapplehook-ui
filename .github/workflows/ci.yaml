@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Electron main-process code paths (subprocess spawning/killing via
+        # grapplehook-core) and electron-builder targets are platform-sensitive,
+        # so exercise all three OSes.
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm run typecheck
+
+      - name: Build (tsc + copy renderer)
+        run: pnpm run build
+
+      - name: Verify build output
+        shell: bash
+        run: |
+          for f in dist/main/main.js dist/preload/preload.js dist/renderer/index.html dist/renderer/renderer.js dist/renderer/style.css; do
+            if [ ! -f "$f" ]; then
+              echo "Missing $f in build output" >&2
+              exit 1
+            fi
+          done
+          echo "build output OK"
+
+      # Package an unpacked app (no installer, no code signing) to catch
+      # electron-builder config errors early. Much faster than a full dist.
+      - name: Package smoke test (electron-builder --dir)
+        run: pnpm exec electron-builder --dir
+        env:
+          # Skip auto-discovery of code-signing identities on macOS runners.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
