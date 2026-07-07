@@ -59,7 +59,7 @@ function createWindow(): BrowserWindow {
 }
 
 // ---------------------------------------------------------------------------
-// IPC handlers — thin wrappers around grapplehook-core.
+// IPC handlers - thin wrappers around grapplehook-core.
 // ---------------------------------------------------------------------------
 function registerIpc(): void {
   ipcMain.handle("gh:checkTools", () => checkTools());

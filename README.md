@@ -2,7 +2,7 @@
 
 Desktop GUI for **grapplehook**, built with Electron on top of
 [`grapplehook-core`](../grapplehook-core). Paste a URL, pick a quality, and
-download — with a live progress bar (download *and* transcode stages),
+download - with a live progress bar (download *and* transcode stages),
 cancellation, and a tool-availability readout for `yt-dlp` / `ffmpeg` / `aria2c`.
 
 > Downloading YouTube content is governed by YouTube's Terms of Service and by
@@ -41,12 +41,12 @@ any running tasks so no orphaned yt-dlp/ffmpeg processes are left behind.
 
 ## Requirements
 
-Same external tools as the CLI — they are **not** bundled by default:
+Same external tools as the CLI - they are **not** bundled by default:
 
 - Node.js 18+
 - `yt-dlp` on `PATH` (or `YTDLP_PATH`)
 - `ffmpeg` / `ffprobe` on `PATH` (or `FFMPEG_PATH` / `FFPROBE_PATH`)
-- `aria2c` recommended (or `ARIA2C_PATH`) — auto-used when present
+- `aria2c` recommended (or `ARIA2C_PATH`) - auto-used when present
 
 The header pills show live availability at launch.
 
@@ -94,6 +94,6 @@ const config = app.isPackaged
 - The renderer's CSP allows `img-src https:` only so video thumbnails can load;
   no remote scripts or styles are permitted.
 - External links open in the system browser via `setWindowOpenHandler`.
-- Progress semantics match the core: `percent` may be `null` (indeterminate —
+- Progress semantics match the core: `percent` may be `null` (indeterminate -
   the hook sweeps the cable), and the `transcode` stage reports a real percent
   and ETA derived from ffmpeg's `-progress` output.
