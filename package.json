@@ -49,6 +49,7 @@
   "build": {
     "appId": "dev.grapplehook.ui",
     "productName": "Grapplehook",
+    "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
     "files": [
       "dist/**/*",
       "package.json"
