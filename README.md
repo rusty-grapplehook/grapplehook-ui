@@ -2,7 +2,7 @@
 
 Desktop GUI for **grapplehook**, built with Electron on top of
 [`grapplehook-core`](../grapplehook-core). Paste a URL, pick a quality, and
-download - with a live progress bar (download *and* transcode stages),
+download - with a live progress bar (download _and_ transcode stages),
 cancellation, and a tool-availability readout for `yt-dlp` / `ffmpeg` / `aria2c`.
 
 > Downloading YouTube content is governed by YouTube's Terms of Service and by
@@ -10,7 +10,7 @@ cancellation, and a tool-availability readout for `yt-dlp` / `ffmpeg` / `aria2c`
 
 ## Layout
 
-```
+```text
 grapplehook-ui/
 ├── package.json
 ├── tsconfig.json            # compiles src/main + src/preload → dist (CJS)
@@ -27,13 +27,13 @@ Everything that spawns subprocesses runs in the **main process** (that's where
 (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`) and talks
 to main only through the small API the preload exposes:
 
-| Renderer call | IPC channel | Core function |
-| --- | --- | --- |
-| `grapplehook.checkTools()` | `gh:checkTools` | `checkTools()` |
-| `grapplehook.getInfo(url)` | `gh:getInfo` | `getVideoInfo(url)` |
-| `grapplehook.start(opts)` → `taskId` | `gh:start` | `download(opts)` |
-| `grapplehook.cancel(taskId)` | `gh:cancel` | `task.cancel()` |
-| `grapplehook.onProgress/onLog/onDone(cb)` | `gh:progress` / `gh:log` / `gh:done` | task events |
+| Renderer call                             | IPC channel                          | Core function       |
+| ----------------------------------------- | ------------------------------------ | ------------------- |
+| `grapplehook.checkTools()`                | `gh:checkTools`                      | `checkTools()`      |
+| `grapplehook.getInfo(url)`                | `gh:getInfo`                         | `getVideoInfo(url)` |
+| `grapplehook.start(opts)` → `taskId`      | `gh:start`                           | `download(opts)`    |
+| `grapplehook.cancel(taskId)`              | `gh:cancel`                          | `task.cancel()`     |
+| `grapplehook.onProgress/onLog/onDone(cb)` | `gh:progress` / `gh:log` / `gh:done` | task events         |
 
 Multiple downloads can run at once; each is identified by a `taskId` so the
 progress stream and cancel button target the right one. `before-quit` cancels
@@ -76,15 +76,12 @@ To ship yt-dlp/ffmpeg inside the app instead of requiring them on `PATH`:
 2. In `main.ts`, pass explicit paths to every core call:
 
 ```ts
-import { app } from "electron";
-import path from "node:path";
+import { app } from 'electron';
+import path from 'node:path';
 
-const bin = (name: string) =>
-  path.join(process.resourcesPath, "bin", process.platform === "win32" ? `${name}.exe` : name);
+const bin = (name: string) => path.join(process.resourcesPath, 'bin', process.platform === 'win32' ? `${name}.exe` : name);
 
-const config = app.isPackaged
-  ? { tools: { ytDlp: bin("yt-dlp"), ffmpeg: bin("ffmpeg"), ffprobe: bin("ffprobe"), aria2c: bin("aria2c") } }
-  : {};
+const config = app.isPackaged ? { tools: { ytDlp: bin('yt-dlp'), ffmpeg: bin('ffmpeg'), ffprobe: bin('ffprobe'), aria2c: bin('aria2c') } } : {};
 
 // then: getVideoInfo(url, config) / download(opts, config) / checkTools(config)
 ```

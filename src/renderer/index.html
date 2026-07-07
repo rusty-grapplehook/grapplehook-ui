@@ -1,86 +1,89 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; img-src 'self' https: data:; style-src 'self'" />
-  <title>Grapplehook</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <header class="topbar">
-    <div class="wordmark"><span class="hook">⌖</span> grapplehook</div>
-    <div class="tools" id="tools" title="External tool availability">
-      <span class="pill" data-tool="ytDlp">yt-dlp</span>
-      <span class="pill" data-tool="ffmpeg">ffmpeg</span>
-      <span class="pill" data-tool="aria2c">aria2c</span>
-    </div>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self'" />
+    <title>Grapplehook</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wordmark"><span class="hook">⌖</span> grapplehook</div>
+      <div class="tools" id="tools" title="External tool availability">
+        <span class="pill" data-tool="ytDlp">yt-dlp</span>
+        <span class="pill" data-tool="ffmpeg">ffmpeg</span>
+        <span class="pill" data-tool="aria2c">aria2c</span>
+      </div>
+    </header>
 
-  <main>
-    <section class="fetch-row">
-      <input id="url" type="url" placeholder="Paste a video URL…" spellcheck="false" autofocus />
-      <button id="fetch" class="primary">Fetch info</button>
-    </section>
-    <p id="fetch-error" class="error" hidden></p>
+    <main>
+      <section class="fetch-row">
+        <input id="url" type="url" placeholder="Paste a video URL…" spellcheck="false" autofocus />
+        <button id="fetch" class="primary">Fetch info</button>
+      </section>
+      <p id="fetch-error" class="error" hidden></p>
 
-    <section id="info" class="card" hidden>
-      <div class="info-head">
-        <img id="thumb" alt="" hidden />
-        <div class="info-meta">
-          <h2 id="title"></h2>
-          <p id="subtitle" class="muted"></p>
+      <section id="info" class="card" hidden>
+        <div class="info-head">
+          <img id="thumb" alt="" hidden />
+          <div class="info-meta">
+            <h2 id="title"></h2>
+            <p id="subtitle" class="muted"></p>
+          </div>
         </div>
-      </div>
 
-      <div class="options">
-        <label>Quality
-          <select id="quality"></select>
-        </label>
-        <label>Mode
-          <select id="mode">
-            <option value="video">Video (best)</option>
-            <option value="mp4">Video → editor mp4</option>
-            <option value="audio">Audio only</option>
-          </select>
-        </label>
-        <label>Save to
-          <span class="dir-picker">
-            <input id="outdir" type="text" placeholder="Choose a folder…" readonly />
-            <button id="choose-dir">Browse</button>
+        <div class="options">
+          <label
+            >Quality
+            <select id="quality"></select>
+          </label>
+          <label
+            >Mode
+            <select id="mode">
+              <option value="video">Video (best)</option>
+              <option value="mp4">Video → editor mp4</option>
+              <option value="audio">Audio only</option>
+            </select>
+          </label>
+          <label
+            >Save to
+            <span class="dir-picker">
+              <input id="outdir" type="text" placeholder="Choose a folder…" readonly />
+              <button id="choose-dir">Browse</button>
+            </span>
+          </label>
+          <label
+            >Filename <span class="muted">(optional)</span>
+            <input id="filename" type="text" placeholder="Defaults to the video title" spellcheck="false" />
+          </label>
+        </div>
+
+        <button id="start" class="primary big">Download</button>
+      </section>
+
+      <section id="downloads"></section>
+    </main>
+
+    <template id="task-template">
+      <article class="task card">
+        <div class="task-head">
+          <span class="task-title"></span>
+          <span class="task-stage muted"></span>
+        </div>
+        <div class="cable" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div class="cable-fill"></div>
+          <div class="cable-hook">⌖</div>
+        </div>
+        <div class="task-foot">
+          <span class="task-stats muted"></span>
+          <span class="task-actions">
+            <button class="task-open" hidden>Show in folder</button>
+            <button class="task-cancel">Cancel</button>
           </span>
-        </label>
-        <label>Filename <span class="muted">(optional)</span>
-          <input id="filename" type="text" placeholder="Defaults to the video title" spellcheck="false" />
-        </label>
-      </div>
+        </div>
+      </article>
+    </template>
 
-      <button id="start" class="primary big">Download</button>
-    </section>
-
-    <section id="downloads"></section>
-  </main>
-
-  <template id="task-template">
-    <article class="task card">
-      <div class="task-head">
-        <span class="task-title"></span>
-        <span class="task-stage muted"></span>
-      </div>
-      <div class="cable" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-        <div class="cable-fill"></div>
-        <div class="cable-hook">⌖</div>
-      </div>
-      <div class="task-foot">
-        <span class="task-stats muted"></span>
-        <span class="task-actions">
-          <button class="task-open" hidden>Show in folder</button>
-          <button class="task-cancel">Cancel</button>
-        </span>
-      </div>
-    </article>
-  </template>
-
-  <script src="renderer.js"></script>
-</body>
+    <script src="renderer.js"></script>
+  </body>
 </html>
