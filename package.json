@@ -27,7 +27,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "grapplehook-core": "file:../grapplehook-core"
+    "grapplehook-core": "^0.1.4"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
