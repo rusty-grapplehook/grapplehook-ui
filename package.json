@@ -1,0 +1,49 @@
+{
+  "name": "grapplehook-ui",
+  "version": "0.1.0",
+  "description": "Desktop GUI for grapplehook: download and transcode videos (yt-dlp + ffmpeg + aria2c) with live progress and cancellation.",
+  "private": true,
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-renderer.mjs",
+    "start": "npm run build && electron .",
+    "dev": "npm run build && electron . --dev",
+    "typecheck": "tsc --noEmit",
+    "dist": "npm run build && electron-builder"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "electron",
+    "yt-dlp",
+    "ffmpeg",
+    "aria2c",
+    "downloader",
+    "grapplehook"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "grapplehook-core": "file:../grapplehook-core"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "electron": "^33.3.1",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.7.3"
+  },
+  "build": {
+    "appId": "dev.grapplehook.ui",
+    "productName": "Grapplehook",
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": { "category": "public.app-category.utilities" },
+    "win": { "target": "nsis" },
+    "linux": { "target": "AppImage" }
+  }
+}
