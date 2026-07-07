@@ -35,6 +35,7 @@ jobs:
           cache: pnpm
 
       - name: Verify tag matches package.json version
+        id: version
         shell: bash
         run: |
           TAG="${GITHUB_REF_NAME#v}"
@@ -43,6 +44,7 @@ jobs:
             echo "Tag v$TAG does not match package.json version $PKG" >&2
             exit 1
           fi
+          echo "version=$PKG" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -65,7 +67,8 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: grapplehook-${{ matrix.os }}
+          # runner.os → macOS / Windows / Linux (nicer than "macos-latest")
+          name: grapplehook-${{ steps.version.outputs.version }}-${{ runner.os }}
           path: |
             release/*.dmg
             release/*.exe
