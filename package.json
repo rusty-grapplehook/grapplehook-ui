@@ -1,6 +1,6 @@
 {
   "name": "grapplehook-ui",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Desktop GUI for grapplehook: download and transcode videos (yt-dlp + ffmpeg + aria2c) with live progress and cancellation.",
   "private": true,
   "main": "dist/main/main.js",
