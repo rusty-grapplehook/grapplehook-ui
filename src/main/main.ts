@@ -37,6 +37,7 @@ function createWindow(): BrowserWindow {
       nodeIntegration: false,
       sandbox: true,
     },
+    icon: path.join(__dirname, '..', 'renderer', 'icon.png'), // ship a copy in dist
   });
 
   win.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
