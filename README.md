@@ -100,17 +100,18 @@ Everything that spawns subprocesses runs in the **main process** (that's where
 (`contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`) and talks
 to main only through the small API the preload exposes:
 
-| Renderer call                             | IPC channel                          | Backed by                  |
-| ----------------------------------------- | ------------------------------------ | -------------------------- |
-| `grapplehook.checkTools()`                | `gh:checkTools`                      | `checkTools()`             |
-| `grapplehook.getInfo(url)`                | `gh:getInfo`                         | `getVideoInfo(url)`        |
-| `grapplehook.chooseDir()`                 | `gh:chooseDir`                       | `dialog.showOpenDialog()`  |
-| `grapplehook.openPath(path)`              | `gh:openPath`                        | `shell.showItemInFolder()` |
-| `grapplehook.start(opts)` → `taskId`      | `gh:start`                           | `download(opts)`           |
-| `grapplehook.cancel(taskId)`              | `gh:cancel`                          | `task.cancel()`            |
-| `grapplehook.checkUpdate()`               | `gh:checkUpdate`                     | GitHub releases API        |
-| `grapplehook.openReleases()`              | `gh:openReleases`                    | `shell.openExternal()`     |
-| `grapplehook.onProgress/onLog/onDone(cb)` | `gh:progress` / `gh:log` / `gh:done` | task events                |
+| Renderer call                             | IPC channel                          | Backed by                                       |
+| ----------------------------------------- | ------------------------------------ | ----------------------------------------------- |
+| `grapplehook.checkTools()`                | `gh:checkTools`                      | `checkTools()`                                  |
+| `grapplehook.getInfo(url)`                | `gh:getInfo`                         | `getVideoInfo(url)`                             |
+| `grapplehook.getAppInfo()`                | `gh:getAppInfo`                      | `app.getVersion()` + `app.getPath('downloads')` |
+| `grapplehook.chooseDir()`                 | `gh:chooseDir`                       | `dialog.showOpenDialog()`                       |
+| `grapplehook.openPath(path)`              | `gh:openPath`                        | `shell.showItemInFolder()`                      |
+| `grapplehook.start(opts)` → `taskId`      | `gh:start`                           | `download(opts)`                                |
+| `grapplehook.cancel(taskId)`              | `gh:cancel`                          | `task.cancel()`                                 |
+| `grapplehook.checkUpdate()`               | `gh:checkUpdate`                     | GitHub releases API                             |
+| `grapplehook.openReleases()`              | `gh:openReleases`                    | `shell.openExternal()`                          |
+| `grapplehook.onProgress/onLog/onDone(cb)` | `gh:progress` / `gh:log` / `gh:done` | task events                                     |
 
 Multiple downloads can run at once; each is identified by a `taskId` so the
 progress stream and cancel button target the right one. `before-quit` cancels
@@ -225,6 +226,9 @@ const config = app.isPackaged ? { tools: { ytDlp: bin('yt-dlp'), ffmpeg: bin('ff
 
 ## Notes
 
+- The header shows the app version next to the wordmark, and the output
+  folder defaults to the OS Downloads directory (`app.getPath('downloads')`) -
+  changeable per download via the folder picker.
 - On launch the app checks GitHub for a newer release (one anonymous request
   to the releases API). If one exists, an orange pill appears in the header
   linking to the releases page - updates are manual downloads, there is no

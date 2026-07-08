@@ -22,6 +22,7 @@ const api = {
   onDone: (cb: (p: never) => void): Unsubscribe => on('gh:done', cb),
   checkUpdate: () => ipcRenderer.invoke('gh:checkUpdate'),
   openReleases: () => ipcRenderer.invoke('gh:openReleases'),
+  getAppInfo: (): Promise<{ version: string; downloadsDir: string }> => ipcRenderer.invoke('gh:getAppInfo'),
 };
 
 export type GrapplehookApi = typeof api;

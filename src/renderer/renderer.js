@@ -34,6 +34,14 @@ grapplehook.checkTools().then((t) => {
   }
 });
 
+grapplehook.getAppInfo().then((info) => {
+  document.querySelector('.wordmark .version').textContent = `v${info.version}`;
+
+  if (!els.outdir.value) {
+    els.outdir.value = info.downloadsDir;
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Fetch info
 // ---------------------------------------------------------------------------

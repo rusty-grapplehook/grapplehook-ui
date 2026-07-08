@@ -46,6 +46,13 @@ body {
   color: var(--accent);
 }
 
+.wordmark .version {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
 .tools {
   display: flex;
   gap: 8px;

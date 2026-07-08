@@ -87,6 +87,11 @@ function registerIpc(): void {
   ipcMain.handle('gh:checkUpdate', () => checkForUpdate());
   ipcMain.handle('gh:openReleases', () => shell.openExternal(RELEASES_URL));
 
+  ipcMain.handle('gh:getAppInfo', () => ({
+    version: app.getVersion(),
+    downloadsDir: app.getPath('downloads'),
+  }));
+
   ipcMain.handle('gh:getInfo', async (_e, url: string) => {
     if (typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) {
       throw new Error('Enter a valid http(s) URL.');
