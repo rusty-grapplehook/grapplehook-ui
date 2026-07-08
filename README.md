@@ -90,6 +90,7 @@ grapplehook-ui/
 │   └── copy-renderer.mjs    # copies src/renderer → dist/renderer
 └── src/
     ├── main/main.ts         # window + IPC handlers wrapping grapplehook-core
+    ├── main/update-check.ts # queries GitHub releases for a newer version
     ├── preload/preload.ts   # contextBridge: window.grapplehook API
     └── renderer/            # static UI (index.html / style.css / renderer.js)
 ```
@@ -107,6 +108,8 @@ to main only through the small API the preload exposes:
 | `grapplehook.openPath(path)`              | `gh:openPath`                        | `shell.showItemInFolder()` |
 | `grapplehook.start(opts)` → `taskId`      | `gh:start`                           | `download(opts)`           |
 | `grapplehook.cancel(taskId)`              | `gh:cancel`                          | `task.cancel()`            |
+| `grapplehook.checkUpdate()`               | `gh:checkUpdate`                     | GitHub releases API        |
+| `grapplehook.openReleases()`              | `gh:openReleases`                    | `shell.openExternal()`     |
 | `grapplehook.onProgress/onLog/onDone(cb)` | `gh:progress` / `gh:log` / `gh:done` | task events                |
 
 Multiple downloads can run at once; each is identified by a `taskId` so the
@@ -222,6 +225,11 @@ const config = app.isPackaged ? { tools: { ytDlp: bin('yt-dlp'), ffmpeg: bin('ff
 
 ## Notes
 
+- On launch the app checks GitHub for a newer release (one anonymous request
+  to the releases API). If one exists, an orange pill appears in the header
+  linking to the releases page - updates are manual downloads, there is no
+  auto-updater and nothing is installed in the background. The check fails
+  silently when offline.
 - The renderer's CSP allows `img-src https:` only so video thumbnails can load;
   no remote scripts or styles are permitted.
 - External links open in the system browser via `setWindowOpenHandler`.

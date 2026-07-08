@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { CancelledError, checkTools, download, getVideoInfo, type DownloadOptions, type DownloadTask, type ProgressEvent } from 'grapplehook-core';
 import fs from 'node:fs';
 import path from 'node:path';
+import { checkForUpdate, RELEASES_URL } from './update-check';
 
 // ---------------------------------------------------------------------------
 // Task registry: the renderer refers to running downloads by id.
@@ -69,8 +70,8 @@ function fixPath(): void {
     '/opt/local/bin', // MacPorts
     `${process.env.HOME}/.local/bin`, // pipx
   ].filter((p) => fs.existsSync(p));
-
   const current = (process.env.PATH ?? '').split(':');
+
   process.env.PATH = [...new Set([...current, ...extra])].join(':');
 }
 
@@ -81,6 +82,9 @@ fixPath();
 // ---------------------------------------------------------------------------
 function registerIpc(): void {
   ipcMain.handle('gh:checkTools', () => checkTools());
+
+  ipcMain.handle('gh:checkUpdate', () => checkForUpdate());
+  ipcMain.handle('gh:openReleases', () => shell.openExternal(RELEASES_URL));
 
   ipcMain.handle('gh:getInfo', async (_e, url: string) => {
     if (typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) {

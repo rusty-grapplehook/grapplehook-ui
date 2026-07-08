@@ -294,3 +294,9 @@ button.big {
     width: 100%;
   }
 }
+
+.pill.update {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  cursor: pointer;
+}

@@ -20,6 +20,8 @@ const api = {
   onProgress: (cb: (p: never) => void): Unsubscribe => on('gh:progress', cb),
   onLog: (cb: (p: { taskId: number; line: string }) => void): Unsubscribe => on('gh:log', cb),
   onDone: (cb: (p: never) => void): Unsubscribe => on('gh:done', cb),
+  checkUpdate: () => ipcRenderer.invoke('gh:checkUpdate'),
+  openReleases: () => ipcRenderer.invoke('gh:openReleases'),
 };
 
 export type GrapplehookApi = typeof api;

@@ -244,6 +244,20 @@ grapplehook.onDone((d) => {
   }
 });
 
+grapplehook.checkUpdate().then((u) => {
+  if (!u.updateAvailable) {
+    return;
+  }
+
+  const pill = document.createElement('button');
+
+  pill.className = 'pill update';
+  pill.textContent = `v${u.latestVersion} available`;
+  pill.title = 'Open the releases page';
+  pill.addEventListener('click', () => grapplehook.openReleases());
+  els.tools.prepend(pill);
+});
+
 // ---------------------------------------------------------------------------
 function formatBytes(n) {
   if (!Number.isFinite(n) || n < 0) {
