@@ -1,10 +1,13 @@
 # grapplehook-ui
 
 Desktop GUI for **grapplehook**, built with Electron on top of
-[`grapplehook-core`](https://www.npmjs.com/package/grapplehook-core). Paste a
-URL, pick a quality, and download - with a live progress bar (download _and_
-transcode stages), cancellation, and a tool-availability readout for
-`yt-dlp` / `ffmpeg` / `aria2c`.
+[`grapplehook-core`](https://www.npmjs.com/package/grapplehook-core) (there's
+also a [CLI](https://github.com/rusty-grapplehook/grapplehook-cli) if you live
+in a terminal). Paste a URL, pick a quality, and download - with a live
+progress bar (download _and_ transcode stages), cancellation, and a
+tool-availability readout for `yt-dlp` / `ffmpeg` / `aria2c`.
+
+![Grapplehook screenshot](docs/screenshot.png)
 
 > Downloading YouTube content is governed by YouTube's Terms of Service and by
 > copyright law. Use this only for videos you have the right to download.
@@ -41,6 +44,10 @@ Gatekeeper's quarantine flag on an unsigned download - clear it with:
 ```bash
 xattr -cr /Applications/Grapplehook.app
 ```
+
+The `.dmg` is Apple Silicon only. On an Intel Mac, [build from
+source](#develop) instead - `pnpm run dist` produces an x64 build on x64
+hardware.
 
 ### Windows
 
@@ -79,6 +86,26 @@ certutil -hashfile <file> SHA256   # Windows
 
 Remember the app still needs `yt-dlp` and `ffmpeg` installed - see
 [Requirements](#requirements).
+
+## Usage
+
+1. **Check the pills.** The header shows live availability for `yt-dlp`,
+   `ffmpeg`, and `aria2c`. Red pill = not found - see
+   [Requirements](#requirements).
+2. **Paste a URL.** The video's title, duration, and available resolutions
+   load automatically.
+3. **Pick your options.** Choose a max quality, toggle **mp4** if you need an
+   editor-friendly H.264/AAC file (this re-encodes, so it's slower), and
+   optionally set a custom filename.
+4. **Choose where it goes.** Defaults to your OS Downloads folder; the folder
+   picker changes it per download.
+5. **Download.** The progress bar covers both stages - download, then
+   transcode if mp4 is on. Multiple downloads can run at once, each with its
+   own cancel button, and quitting the app cancels anything still running (no
+   orphaned processes).
+
+When a download finishes, click its entry to reveal the file in your file
+manager.
 
 ## Layout
 
@@ -178,6 +205,26 @@ If a tool is installed somewhere unusual, point the app at it with the
 `YTDLP_PATH` / `FFMPEG_PATH` / `FFPROBE_PATH` / `ARIA2C_PATH` environment
 variables.
 
+## Troubleshooting
+
+- **Downloads suddenly fail / "unable to extract" errors** - YouTube changed
+  something and your `yt-dlp` is stale. This is the #1 cause of breakage:
+
+  ```bash
+  yt-dlp -U   # or: pipx upgrade yt-dlp / brew upgrade yt-dlp / winget upgrade yt-dlp.yt-dlp
+  ```
+
+- **A pill is red but the tool is installed** - it's not on the `PATH` the app
+  sees, or it's somewhere unusual. Point the app at it with `YTDLP_PATH` /
+  `FFMPEG_PATH` / `FFPROBE_PATH` / `ARIA2C_PATH`, then restart the app.
+- **macOS says the app "is damaged"** - Gatekeeper quarantine flag on the
+  unsigned download: `xattr -cr /Applications/Grapplehook.app`
+  (see [Install → macOS](#macos)).
+- **AppImage won't start (FUSE error)** - `sudo apt install libfuse2t64` or
+  run with `--appimage-extract-and-run` (see [Install → Linux](#linux)).
+- **Downloads are slow** - install `aria2c`; the app auto-uses it when
+  present.
+
 ## Develop
 
 `grapplehook-core` is a regular npm dependency, so setup is a single install:
@@ -230,13 +277,14 @@ const config = app.isPackaged ? { tools: { ytDlp: bin('yt-dlp'), ffmpeg: bin('ff
   folder defaults to the OS Downloads directory (`app.getPath('downloads')`) -
   changeable per download via the folder picker.
 - On launch the app checks GitHub for a newer release (one anonymous request
-  to the releases API). If one exists, an orange pill appears in the header
-  linking to the releases page - updates are manual downloads, there is no
-  auto-updater and nothing is installed in the background. The check fails
-  silently when offline.
-- The renderer's CSP allows `img-src https:` only so video thumbnails can load;
-  no remote scripts or styles are permitted.
-- External links open in the system browser via `setWindowOpenHandler`.
-- Progress semantics match the core: `percent` may be `null` (indeterminate -
-  the hook sweeps the cable), and the `transcode` stage reports a real percent
-  and ETA derived from ffmpeg's `-progress` output.
+  to the releases API).
+
+## Contributing
+
+Bugs and feature requests → [GitHub
+issues](https://github.com/rusty-grapplehook/grapplehook-ui/issues). PRs
+welcome - run `pnpm run bonita` before pushing so lint/format stay clean.
+
+## License
+
+[MIT](LICENSE)
