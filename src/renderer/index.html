@@ -35,11 +35,13 @@
         <div class="options">
           <label
             >Quality
-            <select id="quality"></select>
+            <select id="quality" disabled>
+              <option value="" selected>Fetch a video first</option>
+            </select>
           </label>
           <label
             >Mode
-            <select id="mode">
+            <select id="mode" disabled>
               <option value="video">Video (best)</option>
               <option value="mp4">Video → editor mp4</option>
               <option value="audio">Audio only</option>
@@ -54,11 +56,10 @@
           </label>
           <label>
             <span class="muted">Filename (optional)</span>
-            <input id="filename" type="text" placeholder="Defaults to the video title" spellcheck="false" />
+            <input id="filename" disabled placeholder="Filename (optional)" />
           </label>
         </div>
-
-        <button id="start" class="primary big">Download</button>
+        <button id="start" class="primary" disabled>Download</button>
       </section>
 
       <section id="downloads"></section>

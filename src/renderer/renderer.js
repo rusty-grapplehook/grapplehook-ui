@@ -54,6 +54,8 @@ async function fetchInfo() {
     return;
   }
 
+  setReady(false);
+
   els.fetchError.hidden = true;
   els.fetch.disabled = true;
   els.fetch.textContent = 'Fetching…';
@@ -63,6 +65,8 @@ async function fetchInfo() {
     renderInfo(currentInfo);
   } catch (err) {
     currentInfo = null;
+
+    els.quality.replaceChildren(new Option('Fetch a video first', ''));
     els.info.hidden = true;
     els.fetchError.textContent = String(err.message || err).replace(/^Error invoking remote method [^:]+:\s*/, '');
     els.fetchError.hidden = false;
@@ -103,6 +107,8 @@ function renderInfo(info) {
   els.quality.add(new Option('Worst (smallest)', 'worst'));
 
   els.info.hidden = false;
+
+  setReady(true);
 }
 
 els.fetch.addEventListener('click', fetchInfo);
@@ -292,4 +298,10 @@ function formatDuration(sec) {
   const ss = String(s % 60).padStart(2, '0');
 
   return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+}
+
+function setReady(ready) {
+  for (const el of [els.quality, els.mode, els.filename, els.start]) {
+    el.disabled = !ready;
+  }
 }
