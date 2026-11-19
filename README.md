@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **This project has moved.** Grapplehook is now a single desktop app at **[kitsupanic/Grapplehook](https://github.com/kitsupanic/Grapplehook)**, built with Tauri. It replaces this Electron app. This repo is archived and no longer updated.
+>
+> **[Download the new app](https://github.com/kitsupanic/Grapplehook/releases/latest)**
+
 # grapplehook-ui
 
 Desktop GUI for **grapplehook**, built with Electron on top of
